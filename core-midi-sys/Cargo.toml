@@ -1,0 +1,7 @@
+[package]
+name = "core-midi-sys"
+version = "0.1.0"
+authors = ["David Wood <devel@dtwood.uk>"]
+
+[dependencies]
+core-foundation-sys = "*"
