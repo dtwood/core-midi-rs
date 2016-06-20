@@ -5,10 +5,10 @@
          non_upper_case_globals,
          non_snake_case)]
 
-/*
+pub type ItemCount = u32;
 
-use core_foundation_sys::*;
-use core_foundation_sys::url::*;
+use core_foundation_sys;
+/*
 
 #[derive(Copy, Clone)]
 #[repr(i32)]
@@ -29,13 +29,15 @@ pub enum Enum_Unnamed_Services1 {
     kMIDIIDNotUnique = -10843,
     kMIDINotPermitted = -10844,
 }
-pub type MIDIObjectRef = UInt32;
+*/
+pub type MIDIObjectRef = u32;
 pub type MIDIClientRef = MIDIObjectRef;
 pub type MIDIPortRef = MIDIObjectRef;
 pub type MIDIDeviceRef = MIDIObjectRef;
 pub type MIDIEntityRef = MIDIObjectRef;
 pub type MIDIEndpointRef = MIDIObjectRef;
-pub type MIDITimeStamp = UInt64;
+pub type MIDITimeStamp = u64;
+/*
 pub type MIDIObjectType = SInt32;
 #[derive(Copy, Clone)]
 #[repr(i32)]
@@ -54,6 +56,7 @@ pub type MIDIUniqueID = SInt32;
 #[derive(Copy, Clone)]
 #[repr(u32)]
 pub enum Enum_Unnamed_Services3 { kMIDIInvalidUniqueID = 0, }
+                                                   */
 pub type MIDINotifyProc =
     ::std::option::Option<unsafe extern "C" fn(message:
                                                    *const MIDINotification,
@@ -68,6 +71,7 @@ pub type MIDIReadProc =
                                                    *mut ::std::os::raw::c_void,
                                                srcConnRefCon:
                                                    *mut ::std::os::raw::c_void)>;
+    /*
 pub type MIDIReadBlock =
     ::std::option::Option<unsafe extern "C" fn(pktlist: *const MIDIPacketList,
                                                srcConnRefCon:
@@ -75,28 +79,20 @@ pub type MIDIReadBlock =
 pub type MIDICompletionProc =
     ::std::option::Option<unsafe extern "C" fn(request:
                                                    *mut MIDISysexSendRequest)>;
+*/
 #[repr(C)]
-#[derive(Copy)]
 pub struct MIDIPacket {
     pub timeStamp: MIDITimeStamp,
-    pub length: UInt16,
-    pub data: [Byte; 1usize],
+    pub length: u16,
+    pub data: ::std::os::raw::c_void,
 }
-impl ::std::clone::Clone for MIDIPacket {
-    fn clone(&self) -> Self { *self }
-}
-impl ::std::default::Default for MIDIPacket {
-    fn default() -> Self { unsafe { ::std::mem::zeroed() } }
-}
+
 #[repr(C)]
-#[derive(Copy, Clone)]
 pub struct MIDIPacketList {
-    pub numPackets: UInt32,
-    pub packet: [MIDIPacket; 1usize],
+    pub numPackets: u32,
+    pub packet: ::std::os::raw::c_void,
 }
-impl ::std::default::Default for MIDIPacketList {
-    fn default() -> Self { unsafe { ::std::mem::zeroed() } }
-}
+/*
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct MIDISysexSendRequest {
@@ -111,7 +107,9 @@ pub struct MIDISysexSendRequest {
 impl ::std::default::Default for MIDISysexSendRequest {
     fn default() -> Self { unsafe { ::std::mem::zeroed() } }
 }
-pub type MIDINotificationMessageID = SInt32;
+*/
+pub type MIDINotificationMessageID = i32;
+/*
 #[derive(Copy, Clone)]
 #[repr(u32)]
 pub enum Enum_Unnamed_Services4 {
@@ -123,12 +121,14 @@ pub enum Enum_Unnamed_Services4 {
     kMIDIMsgSerialPortOwnerChanged = 6,
     kMIDIMsgIOError = 7,
 }
+*/
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct MIDINotification {
     pub messageID: MIDINotificationMessageID,
-    pub messageSize: UInt32,
+    pub messageSize: u32,
 }
+/*
 impl ::std::default::Default for MIDINotification {
     fn default() -> Self { unsafe { ::std::mem::zeroed() } }
 }
@@ -152,7 +152,7 @@ pub struct MIDIObjectPropertyChangeNotification {
     pub messageSize: UInt32,
     pub object: MIDIObjectRef,
     pub objectType: MIDIObjectType,
-    pub propertyName: CFStringRef,
+    pub propertyName: core_foundation_sys::string::CFStringRef,
 }
 impl ::std::default::Default for MIDIObjectPropertyChangeNotification {
     fn default() -> Self { unsafe { ::std::mem::zeroed() } }
@@ -163,86 +163,91 @@ pub struct MIDIIOErrorNotification {
     pub messageID: MIDINotificationMessageID,
     pub messageSize: UInt32,
     pub driverDevice: MIDIDeviceRef,
-    pub errorCode: OSStatus,
+    pub errorCode: core_foundation_sys::base::OSStatus,
 }
 impl ::std::default::Default for MIDIIOErrorNotification {
     fn default() -> Self { unsafe { ::std::mem::zeroed() } }
 }
 #[link(name = "CoreMIDI", kind = "framework")]
 extern "C" {
-    pub static kMIDIPropertyName: CFStringRef;
-    pub static kMIDIPropertyManufacturer: CFStringRef;
-    pub static kMIDIPropertyModel: CFStringRef;
-    pub static kMIDIPropertyUniqueID: CFStringRef;
-    pub static kMIDIPropertyDeviceID: CFStringRef;
-    pub static kMIDIPropertyReceiveChannels: CFStringRef;
-    pub static kMIDIPropertyTransmitChannels: CFStringRef;
-    pub static kMIDIPropertyMaxSysExSpeed: CFStringRef;
-    pub static kMIDIPropertyAdvanceScheduleTimeMuSec: CFStringRef;
-    pub static kMIDIPropertyIsEmbeddedEntity: CFStringRef;
-    pub static kMIDIPropertyIsBroadcast: CFStringRef;
-    pub static kMIDIPropertySingleRealtimeEntity: CFStringRef;
-    pub static kMIDIPropertyConnectionUniqueID: CFStringRef;
-    pub static kMIDIPropertyOffline: CFStringRef;
-    pub static kMIDIPropertyPrivate: CFStringRef;
-    pub static kMIDIPropertyDriverOwner: CFStringRef;
-    pub static kMIDIPropertyFactoryPatchNameFile: CFStringRef;
-    pub static kMIDIPropertyUserPatchNameFile: CFStringRef;
-    pub static kMIDIPropertyNameConfiguration: CFStringRef;
-    pub static kMIDIPropertyImage: CFStringRef;
-    pub static kMIDIPropertyDriverVersion: CFStringRef;
-    pub static kMIDIPropertySupportsGeneralMIDI: CFStringRef;
-    pub static kMIDIPropertySupportsMMC: CFStringRef;
-    pub static kMIDIPropertyCanRoute: CFStringRef;
-    pub static kMIDIPropertyReceivesClock: CFStringRef;
-    pub static kMIDIPropertyReceivesMTC: CFStringRef;
-    pub static kMIDIPropertyReceivesNotes: CFStringRef;
-    pub static kMIDIPropertyReceivesProgramChanges: CFStringRef;
-    pub static kMIDIPropertyReceivesBankSelectMSB: CFStringRef;
-    pub static kMIDIPropertyReceivesBankSelectLSB: CFStringRef;
-    pub static kMIDIPropertyTransmitsClock: CFStringRef;
-    pub static kMIDIPropertyTransmitsMTC: CFStringRef;
-    pub static kMIDIPropertyTransmitsNotes: CFStringRef;
-    pub static kMIDIPropertyTransmitsProgramChanges: CFStringRef;
-    pub static kMIDIPropertyTransmitsBankSelectMSB: CFStringRef;
-    pub static kMIDIPropertyTransmitsBankSelectLSB: CFStringRef;
-    pub static kMIDIPropertyPanDisruptsStereo: CFStringRef;
-    pub static kMIDIPropertyIsSampler: CFStringRef;
-    pub static kMIDIPropertyIsDrumMachine: CFStringRef;
-    pub static kMIDIPropertyIsMixer: CFStringRef;
-    pub static kMIDIPropertyIsEffectUnit: CFStringRef;
-    pub static kMIDIPropertyMaxReceiveChannels: CFStringRef;
-    pub static kMIDIPropertyMaxTransmitChannels: CFStringRef;
-    pub static kMIDIPropertyDriverDeviceEditorApp: CFStringRef;
-    pub static kMIDIPropertySupportsShowControl: CFStringRef;
-    pub static kMIDIPropertyDisplayName: CFStringRef;
+    pub static kMIDIPropertyName: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyManufacturer: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyModel: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyUniqueID: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyDeviceID: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyReceiveChannels: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyTransmitChannels: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyMaxSysExSpeed: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyAdvanceScheduleTimeMuSec: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyIsEmbeddedEntity: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyIsBroadcast: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertySingleRealtimeEntity: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyConnectionUniqueID: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyOffline: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyPrivate: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyDriverOwner: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyFactoryPatchNameFile: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyUserPatchNameFile: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyNameConfiguration: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyImage: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyDriverVersion: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertySupportsGeneralMIDI: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertySupportsMMC: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyCanRoute: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyReceivesClock: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyReceivesMTC: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyReceivesNotes: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyReceivesProgramChanges: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyReceivesBankSelectMSB: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyReceivesBankSelectLSB: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyTransmitsClock: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyTransmitsMTC: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyTransmitsNotes: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyTransmitsProgramChanges: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyTransmitsBankSelectMSB: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyTransmitsBankSelectLSB: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyPanDisruptsStereo: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyIsSampler: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyIsDrumMachine: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyIsMixer: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyIsEffectUnit: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyMaxReceiveChannels: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyMaxTransmitChannels: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyDriverDeviceEditorApp: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertySupportsShowControl: core_foundation_sys::string::CFStringRef;
+    pub static kMIDIPropertyDisplayName: core_foundation_sys::string::CFStringRef;
 }
+*/
 #[link(name = "CoreMIDI", kind = "framework")]
 extern "C" {
-    pub fn MIDIClientCreate(name: CFStringRef, notifyProc: MIDINotifyProc,
+    pub fn MIDIClientCreate(name: core_foundation_sys::string::CFStringRef, notifyProc: MIDINotifyProc,
                             notifyRefCon: *mut ::std::os::raw::c_void,
-                            outClient: *mut MIDIClientRef) -> OSStatus;
-    pub fn MIDIClientCreateWithBlock(name: CFStringRef,
+                            outClient: *mut MIDIClientRef) -> core_foundation_sys::base::OSStatus;
+    /*
+    pub fn MIDIClientCreateWithBlock(name: core_foundation_sys::string::CFStringRef,
                                      outClient: *mut MIDIClientRef,
                                      notifyBlock: MIDINotifyBlock)
-     -> OSStatus;
-    pub fn MIDIClientDispose(client: MIDIClientRef) -> OSStatus;
-    pub fn MIDIInputPortCreate(client: MIDIClientRef, portName: CFStringRef,
+     -> core_foundation_sys::base::OSStatus;
+     */
+    pub fn MIDIClientDispose(client: MIDIClientRef) -> core_foundation_sys::base::OSStatus;
+    pub fn MIDIInputPortCreate(client: MIDIClientRef, portName: core_foundation_sys::string::CFStringRef,
                                readProc: MIDIReadProc,
                                refCon: *mut ::std::os::raw::c_void,
-                               outPort: *mut MIDIPortRef) -> OSStatus;
+                               outPort: *mut MIDIPortRef) -> core_foundation_sys::base::OSStatus;
+    /*
     pub fn MIDIInputPortCreateWithBlock(client: MIDIClientRef,
-                                        portName: CFStringRef,
+                                        portName: core_foundation_sys::string::CFStringRef,
                                         outPort: *mut MIDIPortRef,
-                                        readBlock: MIDIReadBlock) -> OSStatus;
-    pub fn MIDIOutputPortCreate(client: MIDIClientRef, portName: CFStringRef,
-                                outPort: *mut MIDIPortRef) -> OSStatus;
-    pub fn MIDIPortDispose(port: MIDIPortRef) -> OSStatus;
+                                        readBlock: MIDIReadBlock) -> core_foundation_sys::base::OSStatus;
+    */
+    pub fn MIDIOutputPortCreate(client: MIDIClientRef, portName: core_foundation_sys::string::CFStringRef,
+                                outPort: *mut MIDIPortRef) -> core_foundation_sys::base::OSStatus;
+    pub fn MIDIPortDispose(port: MIDIPortRef) -> core_foundation_sys::base::OSStatus;
     pub fn MIDIPortConnectSource(port: MIDIPortRef, source: MIDIEndpointRef,
                                  connRefCon: *mut ::std::os::raw::c_void)
-     -> OSStatus;
+     -> core_foundation_sys::base::OSStatus;
     pub fn MIDIPortDisconnectSource(port: MIDIPortRef,
-                                    source: MIDIEndpointRef) -> OSStatus;
+                                    source: MIDIEndpointRef) -> core_foundation_sys::base::OSStatus;
     pub fn MIDIGetNumberOfDevices() -> ItemCount;
     pub fn MIDIGetDevice(deviceIndex0: ItemCount) -> MIDIDeviceRef;
     pub fn MIDIDeviceGetNumberOfEntities(device: MIDIDeviceRef) -> ItemCount;
@@ -256,68 +261,72 @@ extern "C" {
     pub fn MIDIEntityGetDestination(entity: MIDIEntityRef,
                                     destIndex0: ItemCount) -> MIDIEndpointRef;
     pub fn MIDIEntityGetDevice(inEntity: MIDIEntityRef,
-                               outDevice: *mut MIDIDeviceRef) -> OSStatus;
+                               outDevice: *mut MIDIDeviceRef) -> core_foundation_sys::base::OSStatus;
+    /*
     pub fn MIDIGetNumberOfSources() -> ItemCount;
     pub fn MIDIGetSource(sourceIndex0: ItemCount) -> MIDIEndpointRef;
     pub fn MIDIGetNumberOfDestinations() -> ItemCount;
     pub fn MIDIGetDestination(destIndex0: ItemCount) -> MIDIEndpointRef;
     pub fn MIDIEndpointGetEntity(inEndpoint: MIDIEndpointRef,
-                                 outEntity: *mut MIDIEntityRef) -> OSStatus;
-    pub fn MIDIDestinationCreate(client: MIDIClientRef, name: CFStringRef,
+                                 outEntity: *mut MIDIEntityRef) -> core_foundation_sys::base::OSStatus;
+    pub fn MIDIDestinationCreate(client: MIDIClientRef, name: core_foundation_sys::string::CFStringRef,
                                  readProc: MIDIReadProc,
                                  refCon: *mut ::std::os::raw::c_void,
-                                 outDest: *mut MIDIEndpointRef) -> OSStatus;
+                                 outDest: *mut MIDIEndpointRef) -> core_foundation_sys::base::OSStatus;
     pub fn MIDIDestinationCreateWithBlock(client: MIDIClientRef,
-                                          name: CFStringRef,
+                                          name: core_foundation_sys::string::CFStringRef,
                                           outDest: *mut MIDIEndpointRef,
                                           readBlock: MIDIReadBlock)
-     -> OSStatus;
-    pub fn MIDISourceCreate(client: MIDIClientRef, name: CFStringRef,
-                            outSrc: *mut MIDIEndpointRef) -> OSStatus;
-    pub fn MIDIEndpointDispose(endpt: MIDIEndpointRef) -> OSStatus;
+     -> core_foundation_sys::base::OSStatus;
+     */
+    pub fn MIDISourceCreate(client: MIDIClientRef, name: core_foundation_sys::string::CFStringRef,
+                            outSrc: *mut MIDIEndpointRef) -> core_foundation_sys::base::OSStatus;
+    pub fn MIDIEndpointDispose(endpt: MIDIEndpointRef) -> core_foundation_sys::base::OSStatus;
+}
+/*
     pub fn MIDIGetNumberOfExternalDevices() -> ItemCount;
     pub fn MIDIGetExternalDevice(deviceIndex0: ItemCount) -> MIDIDeviceRef;
     pub fn MIDIObjectGetIntegerProperty(obj: MIDIObjectRef,
-                                        propertyID: CFStringRef,
-                                        outValue: *mut SInt32) -> OSStatus;
+                                        propertyID: core_foundation_sys::string::CFStringRef,
+                                        outValue: *mut SInt32) -> core_foundation_sys::base::OSStatus;
     pub fn MIDIObjectSetIntegerProperty(obj: MIDIObjectRef,
-                                        propertyID: CFStringRef,
-                                        value: SInt32) -> OSStatus;
+                                        propertyID: core_foundation_sys::string::CFStringRef,
+                                        value: SInt32) -> core_foundation_sys::base::OSStatus;
     pub fn MIDIObjectGetStringProperty(obj: MIDIObjectRef,
-                                       propertyID: CFStringRef,
-                                       str: *mut CFStringRef) -> OSStatus;
+                                       propertyID: core_foundation_sys::string::CFStringRef,
+                                       str: *mut core_foundation_sys::string::CFStringRef) -> core_foundation_sys::base::OSStatus;
     pub fn MIDIObjectSetStringProperty(obj: MIDIObjectRef,
-                                       propertyID: CFStringRef,
-                                       str: CFStringRef) -> OSStatus;
+                                       propertyID: core_foundation_sys::string::CFStringRef,
+                                       str: core_foundation_sys::string::CFStringRef) -> core_foundation_sys::base::OSStatus;
     pub fn MIDIObjectGetDataProperty(obj: MIDIObjectRef,
-                                     propertyID: CFStringRef,
-                                     outData: *mut CFDataRef) -> OSStatus;
+                                     propertyID: core_foundation_sys::string::CFStringRef,
+                                     outData: *mut CFDataRef) -> core_foundation_sys::base::OSStatus;
     pub fn MIDIObjectSetDataProperty(obj: MIDIObjectRef,
-                                     propertyID: CFStringRef, data: CFDataRef)
-     -> OSStatus;
+                                     propertyID: core_foundation_sys::string::CFStringRef, data: CFDataRef)
+     -> core_foundation_sys::base::OSStatus;
     pub fn MIDIObjectGetDictionaryProperty(obj: MIDIObjectRef,
-                                           propertyID: CFStringRef,
+                                           propertyID: core_foundation_sys::string::CFStringRef,
                                            outDict: *mut CFDictionaryRef)
-     -> OSStatus;
+     -> core_foundation_sys::base::OSStatus;
     pub fn MIDIObjectSetDictionaryProperty(obj: MIDIObjectRef,
-                                           propertyID: CFStringRef,
-                                           dict: CFDictionaryRef) -> OSStatus;
+                                           propertyID: core_foundation_sys::string::CFStringRef,
+                                           dict: CFDictionaryRef) -> core_foundation_sys::base::OSStatus;
     pub fn MIDIObjectGetProperties(obj: MIDIObjectRef,
                                    outProperties: *mut CFPropertyListRef,
-                                   deep: Boolean) -> OSStatus;
+                                   deep: Boolean) -> core_foundation_sys::base::OSStatus;
     pub fn MIDIObjectRemoveProperty(obj: MIDIObjectRef,
-                                    propertyID: CFStringRef) -> OSStatus;
+                                    propertyID: core_foundation_sys::string::CFStringRef) -> core_foundation_sys::base::OSStatus;
     pub fn MIDIObjectFindByUniqueID(inUniqueID: MIDIUniqueID,
                                     outObject: *mut MIDIObjectRef,
                                     outObjectType: *mut MIDIObjectType)
-     -> OSStatus;
+     -> core_foundation_sys::base::OSStatus;
     pub fn MIDISend(port: MIDIPortRef, dest: MIDIEndpointRef,
-                    pktlist: *const MIDIPacketList) -> OSStatus;
-    pub fn MIDISendSysex(request: *mut MIDISysexSendRequest) -> OSStatus;
+                    pktlist: *const MIDIPacketList) -> core_foundation_sys::base::OSStatus;
+    pub fn MIDISendSysex(request: *mut MIDISysexSendRequest) -> core_foundation_sys::base::OSStatus;
     pub fn MIDIReceived(src: MIDIEndpointRef, pktlist: *const MIDIPacketList)
-     -> OSStatus;
-    pub fn MIDIFlushOutput(dest: MIDIEndpointRef) -> OSStatus;
-    pub fn MIDIRestart() -> OSStatus;
+     -> core_foundation_sys::base::OSStatus;
+    pub fn MIDIFlushOutput(dest: MIDIEndpointRef) -> core_foundation_sys::base::OSStatus;
+    pub fn MIDIRestart() -> core_foundation_sys::base::OSStatus;
     pub fn MIDIPacketListInit(pktlist: *mut MIDIPacketList)
      -> *mut MIDIPacket;
     pub fn MIDIPacketListAdd(pktlist: *mut MIDIPacketList,

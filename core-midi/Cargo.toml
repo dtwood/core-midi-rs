@@ -5,3 +5,10 @@ authors = ["David Wood <devel@dtwood.uk>"]
 
 [dependencies]
 core-midi-sys = { path = "../core-midi-sys" }
+core-foundation = "*"
+time = "*"
+ctrlc = "*"
+
+[[bin]]
+name = "core-midi"
+doc = false
