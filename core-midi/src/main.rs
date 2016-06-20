@@ -24,7 +24,7 @@ fn main() {
             match packet.message {
                 Message::ActiveSense => continue,
                 Message::BeatClock => continue,
-                _ => {},
+                _ => {}
             };
             println!("{:?}", packet);
         }

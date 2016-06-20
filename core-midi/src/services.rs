@@ -8,11 +8,16 @@ use std::ptr;
 use std;
 use time::Timespec;
 
-#[derive(Debug)] pub struct Client<'a>(MIDIClientRef, PhantomData<&'a ()>);
-#[derive(Debug)] pub struct Device<'a>(MIDIDeviceRef, PhantomData<&'a ()>);
-#[derive(Debug)] pub struct Endpoint<'a>(MIDIEndpointRef, bool, PhantomData<&'a ()>);
-#[derive(Debug)] pub struct Entity<'a>(MIDIEntityRef, PhantomData<&'a ()>);
-#[derive(Debug)] pub struct Port<'a>(MIDIPortRef, PhantomData<&'a ()>);
+#[derive(Debug)]
+pub struct Client<'a>(MIDIClientRef, PhantomData<&'a ()>);
+#[derive(Debug)]
+pub struct Device<'a>(MIDIDeviceRef, PhantomData<&'a ()>);
+#[derive(Debug)]
+pub struct Endpoint<'a>(MIDIEndpointRef, bool, PhantomData<&'a ()>);
+#[derive(Debug)]
+pub struct Entity<'a>(MIDIEntityRef, PhantomData<&'a ()>);
+#[derive(Debug)]
+pub struct Port<'a>(MIDIPortRef, PhantomData<&'a ()>);
 
 #[derive(Debug)]
 pub struct Packet {
@@ -55,7 +60,9 @@ impl<'a> Entity<'a> {
 
     pub fn get_source(&self, index: u32) -> Endpoint<'a> {
         assert!(index < self.get_number_of_sources());
-        Endpoint(unsafe { MIDIEntityGetSource(self.0, index) }, false, PhantomData)
+        Endpoint(unsafe { MIDIEntityGetSource(self.0, index) },
+                 false,
+                 PhantomData)
     }
 
     pub fn get_sources(&self) -> Vec<Endpoint<'a>> {
@@ -68,7 +75,9 @@ impl<'a> Entity<'a> {
 
     pub fn get_destination(&self, index: u32) -> Endpoint<'a> {
         assert!(index < self.get_number_of_destinations());
-        Endpoint(unsafe { MIDIEntityGetDestination(self.0, index) }, false, PhantomData)
+        Endpoint(unsafe { MIDIEntityGetDestination(self.0, index) },
+                 false,
+                 PhantomData)
     }
 
     pub fn get_destinations(&self) -> Vec<Endpoint<'a>> {
@@ -90,19 +99,19 @@ pub struct Note(i8);
 impl std::fmt::Debug for Note {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self.0 % 12 {
-            0  => try!(f.write_str("C")),
-            1  => try!(f.write_str("C♯")),
-            2  => try!(f.write_str("D")),
-            3  => try!(f.write_str("E♭")),
-            4  => try!(f.write_str("E")),
-            5  => try!(f.write_str("F")),
-            6  => try!(f.write_str("F♯")),
-            7  => try!(f.write_str("G")),
-            8  => try!(f.write_str("G♯")),
-            9  => try!(f.write_str("A")),
+            0 => try!(f.write_str("C")),
+            1 => try!(f.write_str("C♯")),
+            2 => try!(f.write_str("D")),
+            3 => try!(f.write_str("E♭")),
+            4 => try!(f.write_str("E")),
+            5 => try!(f.write_str("F")),
+            6 => try!(f.write_str("F♯")),
+            7 => try!(f.write_str("G")),
+            8 => try!(f.write_str("G♯")),
+            9 => try!(f.write_str("A")),
             10 => try!(f.write_str("B♭")),
             11 => try!(f.write_str("B")),
-            _  => unreachable!(),
+            _ => unreachable!(),
         };
 
         try!(f.write_fmt(format_args!("{}", self.0 / 12 - 1)));
@@ -129,18 +138,26 @@ impl Message {
 
         loop {
             let next = match data.next() {
-                Some(&0xB0) => match (data.next(), data.next()) {
-                    (Some(&index), Some(&value)) => Message::ContinuousController(index, value as i8),
-                    (Some(&v1), None) => Message::Invalid(vec![0xB0, v1]),
-                    (None, None) => Message::Invalid(vec![0xB0]),
-                    (None, Some(_)) => unreachable!(),
-                },
-                Some(&0x90) => match (data.next(), data.next()) {
-                    (Some(&note), Some(&velocity)) => Message::NoteDown(Note(note as i8), velocity),
-                    (Some(&v1), None) => Message::Invalid(vec![0x90, v1]),
-                    (None, None) => Message::Invalid(vec![0x90]),
-                    (None, Some(_)) => unreachable!(),
-                },
+                Some(&0xB0) => {
+                    match (data.next(), data.next()) {
+                        (Some(&index), Some(&value)) => {
+                            Message::ContinuousController(index, value as i8)
+                        }
+                        (Some(&v1), None) => Message::Invalid(vec![0xB0, v1]),
+                        (None, None) => Message::Invalid(vec![0xB0]),
+                        (None, Some(_)) => unreachable!(),
+                    }
+                }
+                Some(&0x90) => {
+                    match (data.next(), data.next()) {
+                        (Some(&note), Some(&velocity)) => {
+                            Message::NoteDown(Note(note as i8), velocity)
+                        }
+                        (Some(&v1), None) => Message::Invalid(vec![0x90, v1]),
+                        (None, None) => Message::Invalid(vec![0x90]),
+                        (None, Some(_)) => unreachable!(),
+                    }
+                }
                 Some(&0xF8) => Message::BeatClock,
                 Some(&0xFE) => Message::ActiveSense,
                 Some(&x) => {
@@ -171,8 +188,12 @@ impl Packet {
         for _ in 0..packet_count {
             let packet_ptr = (body as usize + offset) as *const MIDIPacket;
             let packet: &MIDIPacket = unsafe { &*packet_ptr };
-            let header_size = (&packet.data as *const _ as usize) - (&packet.timeStamp as *const _ as usize);
-            let data = unsafe { ::std::slice::from_raw_parts(&packet.data as *const _ as *const u8, packet.length as usize) };
+            let header_size = (&packet.data as *const _ as usize) -
+                              (&packet.timeStamp as *const _ as usize);
+            let data = unsafe {
+                ::std::slice::from_raw_parts(&packet.data as *const _ as *const u8,
+                                             packet.length as usize)
+            };
 
             for message in Message::vec_from_slice(data) {
                 output.push(Packet {
@@ -212,9 +233,9 @@ impl<'a> Client<'a> {
     }
 
     pub fn create_input_port<'n, F: FnMut(Vec<Packet>)>(&mut self,
-                                                       name: &'n CFString,
-                                                       callback: &'n mut F)
-                                                       -> Port<'n> {
+                                                        name: &'n CFString,
+                                                        callback: &'n mut F)
+                                                        -> Port<'n> {
         unsafe extern "C" fn callback_wrapper_func<F: FnMut(Vec<Packet>)>(
                 packet_list: *const MIDIPacketList,
                 callback: *mut c_void,
