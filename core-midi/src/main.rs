@@ -18,7 +18,9 @@ fn main() {
 
     let name = CFString::new("rust");
 
-    let mut client = Client::new(&name);
+    let mut panic = |_| panic!();
+    let mut client = Client::new(&name, &mut panic);
+
     let mut cb = |packets: Vec<Packet>| {
         for packet in packets {
             match packet.message {

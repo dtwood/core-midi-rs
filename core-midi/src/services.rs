@@ -211,12 +211,30 @@ impl Packet {
 }
 
 impl<'a> Client<'a> {
-    pub fn new<'n>(name: &'n CFString) -> Client<'n> {
+    pub fn new<'n, F: FnMut(MIDINotification)>(name: &'n CFString,
+                                               callback: &'n mut F)
+                                               -> Client<'n> {
+        unsafe extern "C" fn callback_wrapper_func<F: FnMut(MIDINotification)>(
+                notification: *const MIDINotification,
+                callback: *mut c_void) {
+            let _ = std::panic::catch_unwind(|| {
+                debug_assert!(notification != ptr::null());
+                debug_assert!(callback != ptr::null_mut());
+
+                let callback = &mut *(callback as *mut F);
+
+                callback(*notification);
+            });
+        }
+
+        let callback_wrapper = Some(callback_wrapper_func::<F> as unsafe extern "C" fn(_, _));
+        let callback_pointer = callback as *mut F as *mut c_void;
+
         let mut output = unsafe { mem::uninitialized() };
         let result = unsafe {
             MIDIClientCreate(name.as_concrete_TypeRef(),
-                             None,
-                             ptr::null_mut(),
+                             callback_wrapper,
+                             callback_pointer,
                              &mut output)
         };
         assert_eq!(result, 0);
@@ -239,16 +257,17 @@ impl<'a> Client<'a> {
         unsafe extern "C" fn callback_wrapper_func<F: FnMut(Vec<Packet>)>(
                 packet_list: *const MIDIPacketList,
                 callback: *mut c_void,
-                _: *mut c_void) {
-            debug_assert!(packet_list != ptr::null());
-            debug_assert!(callback != ptr::null_mut());
+                source_data: *mut c_void) {
+            let _ = std::panic::catch_unwind(|| {
+                debug_assert!(packet_list != ptr::null());
+                debug_assert!(callback != ptr::null_mut());
+                debug_assert!(source_data == ptr::null_mut());
 
-            let callback: &mut F = &mut *(callback as *mut F);
-            let packet_list = Packet::vec_from_list(&*packet_list);
+                let callback = &mut *(callback as *mut F);
+                let packet_list = Packet::vec_from_list(&*packet_list);
 
-            let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
                 callback(packet_list);
-            }));
+            });
         }
 
         let callback_wrapper = Some(callback_wrapper_func::<F> as unsafe extern "C" fn(_, _, _));
