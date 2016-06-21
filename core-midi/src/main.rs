@@ -18,10 +18,10 @@ fn main() {
 
     let name = CFString::new("rust");
 
-    let mut panic = |_| panic!();
-    let mut client = Client::new(&name, &mut panic);
+    let panic = |_| panic!();
+    let mut client = Client::new(&name, &panic);
 
-    let mut cb = |packets: Vec<Packet>| {
+    let cb = |packets: Vec<Packet>| {
         for packet in packets {
             match packet.message {
                 Message::ActiveSense => continue,
@@ -31,7 +31,7 @@ fn main() {
             println!("{:?}", packet);
         }
     };
-    let mut port = client.create_input_port(&name, &mut cb);
+    let mut port = client.create_input_port(&name, &cb);
 
     for device in get_devices() {
         for entity in device.get_entities() {

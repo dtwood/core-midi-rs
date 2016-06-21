@@ -211,9 +211,38 @@ impl Packet {
 }
 
 impl<'a> Client<'a> {
-    pub fn new<'n, F: FnMut(MIDINotification)>(name: &'n CFString,
-                                               callback: &'n mut F)
-                                               -> Client<'n> {
+    pub fn new<'n, F: Fn(MIDINotification)>(name: &'n CFString, callback: &'n F) -> Client<'n> {
+        unsafe extern "C" fn callback_wrapper_func<F: Fn(MIDINotification)>(
+                notification: *const MIDINotification,
+                callback: *mut c_void) {
+            let _ = std::panic::catch_unwind(|| {
+                debug_assert!(notification != ptr::null());
+                debug_assert!(callback != ptr::null_mut());
+
+                let callback = &*(callback as *const F);
+
+                callback(*notification);
+            });
+        }
+
+        let callback_wrapper = Some(callback_wrapper_func::<F> as unsafe extern "C" fn(_, _));
+        let callback_pointer = callback as *const _ as *mut c_void;
+
+        let mut output = unsafe { mem::uninitialized() };
+        let result = unsafe {
+            MIDIClientCreate(name.as_concrete_TypeRef(),
+                             callback_wrapper,
+                             callback_pointer,
+                             &mut output)
+        };
+        assert_eq!(result, 0);
+
+        Client(output, PhantomData)
+    }
+
+    pub fn new_mut<'n, F: FnMut(MIDINotification)>(name: &'n CFString,
+                                                   callback: &'n mut F)
+                                                   -> Client<'n> {
         unsafe extern "C" fn callback_wrapper_func<F: FnMut(MIDINotification)>(
                 notification: *const MIDINotification,
                 callback: *mut c_void) {
@@ -228,7 +257,7 @@ impl<'a> Client<'a> {
         }
 
         let callback_wrapper = Some(callback_wrapper_func::<F> as unsafe extern "C" fn(_, _));
-        let callback_pointer = callback as *mut F as *mut c_void;
+        let callback_pointer = callback as *mut _ as *mut c_void;
 
         let mut output = unsafe { mem::uninitialized() };
         let result = unsafe {
@@ -250,10 +279,46 @@ impl<'a> Client<'a> {
         Endpoint(output, true, PhantomData)
     }
 
-    pub fn create_input_port<'n, F: FnMut(Vec<Packet>)>(&mut self,
-                                                        name: &'n CFString,
-                                                        callback: &'n mut F)
-                                                        -> Port<'n> {
+    pub fn create_input_port<'n, F: Fn(Vec<Packet>)>(&mut self,
+                                                     name: &'n CFString,
+                                                     callback: &'n F)
+                                                     -> Port<'n> {
+        unsafe extern "C" fn callback_wrapper_func<F: Fn(Vec<Packet>)>(
+                packet_list: *const MIDIPacketList,
+                callback: *mut c_void,
+                source_data: *mut c_void) {
+            let _ = std::panic::catch_unwind(|| {
+                debug_assert!(packet_list != ptr::null());
+                debug_assert!(callback != ptr::null_mut());
+                debug_assert!(source_data == ptr::null_mut());
+
+                let callback = &*(callback as *const F);
+                let packet_list = Packet::vec_from_list(&*packet_list);
+
+                callback(packet_list);
+            });
+        }
+
+        let callback_wrapper = Some(callback_wrapper_func::<F> as unsafe extern "C" fn(_, _, _));
+        let callback_pointer = callback as *const _ as *mut c_void;
+
+        let mut output = unsafe { mem::uninitialized() };
+        let result = unsafe {
+            MIDIInputPortCreate(self.0,
+                                name.as_concrete_TypeRef(),
+                                callback_wrapper,
+                                callback_pointer,
+                                &mut output)
+        };
+        assert_eq!(result, 0);
+
+        Port(output, PhantomData)
+    }
+
+    pub fn create_input_port_mut<'n, F: FnMut(Vec<Packet>)>(&mut self,
+                                                            name: &'n CFString,
+                                                            callback: &'n mut F)
+                                                            -> Port<'n> {
         unsafe extern "C" fn callback_wrapper_func<F: FnMut(Vec<Packet>)>(
                 packet_list: *const MIDIPacketList,
                 callback: *mut c_void,
@@ -271,7 +336,7 @@ impl<'a> Client<'a> {
         }
 
         let callback_wrapper = Some(callback_wrapper_func::<F> as unsafe extern "C" fn(_, _, _));
-        let callback_pointer = callback as *mut F as *mut c_void;
+        let callback_pointer = callback as *const _ as *mut c_void;
 
         let mut output = unsafe { mem::uninitialized() };
         let result = unsafe {

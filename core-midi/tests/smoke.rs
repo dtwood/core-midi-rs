@@ -13,7 +13,9 @@ fn count_devices() {
 fn create() {
     let name = CFString::new("rust");
 
-    let mut client = Client::new(&name);
+    let mut a = 0;
+    let mut nop = |_| a += 1;
+    let mut client = Client::new_mut(&name, &mut nop);
     let endpoint = client.create_source(&name);
 
     let mut cb = |packet_list| println!("{:?}", packet_list);
