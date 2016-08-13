@@ -2,6 +2,8 @@
 name = "core-midi-sys"
 version = "0.1.0"
 authors = ["David Wood <devel@dtwood.uk>"]
+description = "Bindings to Core MIDI for OS X"
+license = "MIT / Apache-2.0"
 
 [dependencies]
-core-foundation-sys = "*"
+core-foundation-sys = "0.2.2"

@@ -2,8 +2,10 @@
 name = "core-midi"
 version = "0.1.0"
 authors = ["David Wood <devel@dtwood.uk>"]
+description = "Bindings to Core MIDI for OS X"
+license = "MIT / Apache 2.0"
 
 [dependencies]
-core-midi-sys = { path = "../core-midi-sys" }
-core-foundation = "*"
+core-midi-sys = "0.1.0"
+core-foundation = "0.2.2"
 time = "0.1"

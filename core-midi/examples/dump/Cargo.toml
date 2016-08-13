@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["David Wood <devel@dtwood.uk>"]
 
 [dependencies]
-core-midi = { path = "../../" }
+core-midi = "*"
 core-foundation = "*"
 time = "*"
 ctrlc = "*"
