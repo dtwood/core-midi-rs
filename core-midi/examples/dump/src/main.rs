@@ -1,20 +1,25 @@
-#![feature(const_fn)]
-
-extern crate ctrlc;
-extern crate core_midi;
 extern crate core_foundation;
+extern crate core_midi;
+extern crate ctrlc;
 
-use core_midi::*;
-use core_foundation::string::CFString;
-
+use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 
-static RUNNING: AtomicBool = AtomicBool::new(true);
+use core_foundation::string::CFString;
+use core_midi::*;
 
 fn main() {
-    ctrlc::set_handler(move || {
-        RUNNING.store(false, Ordering::Relaxed);
-    });
+    let running = Arc::new(AtomicBool::new(true));
+
+    {
+        let running = running.clone();
+
+        ctrlc::set_handler(move || {
+            running.store(false, Ordering::Relaxed);
+        });
+    }
+
+    let running = running.clone();
 
     let name = CFString::new("rust");
 
@@ -41,7 +46,7 @@ fn main() {
         }
     }
 
-    while RUNNING.load(Ordering::Relaxed) {
+    while running.load(Ordering::Relaxed) {
         std::thread::yield_now();
     }
 }

@@ -1,9 +1,10 @@
 [package]
-name = "core-midi"
+name = "midi-dump"
 version = "0.1.0"
 authors = ["David Wood <devel@dtwood.uk>"]
 
 [dependencies]
-core-midi-sys = { path = "../core-midi-sys" }
+core-midi = { path = "../../" }
 core-foundation = "*"
-time = "0.1"
+time = "*"
+ctrlc = "*"
