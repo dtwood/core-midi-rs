@@ -94,7 +94,7 @@ impl<'a> Entity<'a> {
     }
 }
 
-pub struct Note(i8);
+pub struct Note(pub i8);
 
 impl std::fmt::Debug for Note {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
