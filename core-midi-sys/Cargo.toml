@@ -1,6 +1,6 @@
 [package]
 name = "core-midi-sys"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["David Wood <devel@dtwood.uk>"]
 description = "Bindings to Core MIDI for OS X"
 license = "MIT / Apache-2.0"
